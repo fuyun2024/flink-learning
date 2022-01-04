@@ -3,6 +3,8 @@ package com.sf.bdp.flink.entity;
 import org.apache.flink.types.RowKind;
 import org.apache.kafka.connect.data.Schema;
 
+import java.util.Arrays;
+
 
 /**
  * description:
@@ -125,6 +127,21 @@ public class DynamicRowRecord {
 
     public void setValues(Object[] values) {
         this.values = values;
+    }
+
+    @Override
+    public String toString() {
+        return "DynamicRowRecord{" +
+                "dbName='" + dbName + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", kind=" + kind +
+                ", keyNames=" + Arrays.toString(keyNames) +
+                ", keyTypes=" + Arrays.toString(keyTypes) +
+                ", keyValues=" + Arrays.toString(keyValues) +
+                ", fieldNames=" + Arrays.toString(fieldNames) +
+                ", fieldTypes=" + Arrays.toString(fieldTypes) +
+                ", values=" + Arrays.toString(values) +
+                '}';
     }
 }
 

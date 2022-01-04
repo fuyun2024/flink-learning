@@ -3,6 +3,7 @@ package com.sf.bdp.flink.extractor;
 import com.sf.bdp.flink.entity.DynamicRowRecord;
 import com.sf.bdp.flink.entity.DynamicSqlRecord;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.types.RowKind;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -20,13 +21,14 @@ public class DynamicSqlRecordExtractor implements RecordExtractor<Tuple2<String,
             case UPDATE_BEFORE:
             case UPDATE_AFTER:
                 String upsertSql = getUpsertSql(record.getDbName(), record.getTableName(), record.getFieldNames());
-                return new DynamicSqlRecord(upsertSql, record.getFieldNames(), record.getFieldTypes(), record.getValues());
+                return new DynamicSqlRecord(tuple2.f0, RowKind.INSERT, upsertSql,
+                        record.getFieldNames(), record.getFieldTypes(), record.getValues());
             case DELETE:
                 String deleteSql = getDeleteSql(record.getDbName(), record.getTableName(), record.getKeyNames());
-                return new DynamicSqlRecord(deleteSql, record.getKeyNames(), record.getKeyTypes(), record.getKeyValues());
+                return new DynamicSqlRecord(tuple2.f0, RowKind.DELETE, deleteSql,
+                        record.getKeyNames(), record.getKeyTypes(), record.getKeyValues());
             default:
                 throw new UnsupportedOperationException("Unsupported type:" + record.getKind());
-
         }
     }
 

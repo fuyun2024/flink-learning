@@ -4,8 +4,10 @@ import com.sf.bdp.flink.connection.SimpleJdbcConnectionProvider;
 import com.sf.bdp.flink.entity.DynamicRowRecord;
 import com.sf.bdp.flink.entity.DynamicSqlRecord;
 import com.sf.bdp.flink.executor.DynamicSqlRecordBatchExecutor;
+import com.sf.bdp.flink.executor.DynamicSqlRecordMapBatchExecutor;
 import com.sf.bdp.flink.executor.JdbcBatchExecutor;
 import com.sf.bdp.flink.extractor.DynamicSqlRecordExtractor;
+import com.sf.bdp.flink.options.JdbcConnectionOptions;
 import com.sf.bdp.flink.out.JdbcBatchingOutputFormat;
 import com.sf.bdp.flink.statement.DynamicSqlRecordStatementFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -72,7 +74,7 @@ public class DynamicSqlOutputFormatBuilder {
             return new JdbcBatchingOutputFormat(
                     new SimpleJdbcConnectionProvider(options),
                     executionOptionsBuilder.build(),
-                    dynamicSqlRecordBatchExecutorFactory,
+                    dynamicSqlRecordMapBatchExecutorFactory,
                     new DynamicSqlRecordExtractor());
 
         }
@@ -81,6 +83,10 @@ public class DynamicSqlOutputFormatBuilder {
 
     static JdbcBatchingOutputFormat.StatementExecutorFactory dynamicSqlRecordBatchExecutorFactory =
             ctx -> new DynamicSqlRecordBatchExecutor(new DynamicSqlRecordStatementFunction());
+
+
+    static JdbcBatchingOutputFormat.StatementExecutorFactory dynamicSqlRecordMapBatchExecutorFactory =
+            ctx -> new DynamicSqlRecordMapBatchExecutor(new DynamicSqlRecordStatementFunction());
 
 
 }

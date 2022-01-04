@@ -54,9 +54,8 @@ public class DynamicRowRecordDeserializationSchema implements DebeziumDeserializ
         String dbName = split[0];
         String tableName = split[1];
 
-
         // todo
-        dbName = dbName + "_copy";
+         dbName = dbName + "_copy";
 
 
         Envelope.Operation op = Envelope.operationFor(sourceRecord);
@@ -110,7 +109,8 @@ public class DynamicRowRecordDeserializationSchema implements DebeziumDeserializ
         Object[] values = new Object[fieldType.length];
 
         for (int i = 0; i < fieldNames.length; i++) {
-            if (BYTES.equals(fieldType[i])) {
+//            if (BYTES.equals(fieldType[i])) {
+            if (BYTES.equals(fieldType[i]) && after.get(fieldNames[i]) instanceof ByteBuffer) {
                 values[i] = convertToBinary.convert(after.get(fieldNames[i]), null);
             } else {
                 values[i] = after.get(fieldNames[i]);

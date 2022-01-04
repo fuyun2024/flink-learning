@@ -42,11 +42,9 @@ public class DynamicSqlRecordBatchExecutor implements JdbcBatchExecutor<DynamicS
 
     private final JdbcStatementBuilder<DynamicSqlRecord> parameterSetter;
     private final List<DynamicSqlRecord> batch;
-
-
-    // sql
     private Connection connection;
     private transient PreparedStatement st;
+
 
     public DynamicSqlRecordBatchExecutor(JdbcStatementBuilder<DynamicSqlRecord> statementBuilder) {
         this.parameterSetter = statementBuilder;
@@ -62,13 +60,27 @@ public class DynamicSqlRecordBatchExecutor implements JdbcBatchExecutor<DynamicS
 
     @Override
     public void executeBatch() throws SQLException {
-        if (!batch.isEmpty()) {
+        if (batch.isEmpty()) {
+            return;
+        }
+
+        try {
+
             connection.setAutoCommit(false);
             for (DynamicSqlRecord data : batch) {
                 execute(data);
             }
             connection.commit();
+            connection.setAutoCommit(true);
+
+            // 清空数据
             batch.clear();
+        } catch (Exception e) {
+            LOG.error("", e);
+            // 回滚
+            rollback(connection);
+            // 回滚完成后，主动抛出异常
+            throw new SQLException("数提交失败");
         }
     }
 
@@ -84,4 +96,15 @@ public class DynamicSqlRecordBatchExecutor implements JdbcBatchExecutor<DynamicS
         this.connection = connection;
     }
 
+
+    private void rollback(Connection connection) {
+        if (connection != null) {
+            try {
+                LOG.info("正在回滚更新失败的数据");
+                connection.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
 }
