@@ -46,7 +46,7 @@ public class DynamicSqlRecordStatementFunction implements JdbcStatementBuilder<D
             type = dynamicRowData.getFieldTypes()[i];
             value = dynamicRowData.getValues()[i];
 
-            converter = createNullableExternalConverter(type);
+            converter = createObjectExternalConverter(type);
             converter.serialize(Optional.ofNullable(value), i + 1, preparedStatement);
         }
     }
@@ -57,6 +57,19 @@ public class DynamicSqlRecordStatementFunction implements JdbcStatementBuilder<D
                 throws SQLException;
     }
 
+
+    protected JdbcSerializationConverter createObjectExternalConverter(Schema.Type type) {
+        final int sqlType =
+                JdbcTypeUtil.schemaTypeToSqlType(type);
+
+        return (val, index, statement) -> {
+            if (!val.isPresent()) {
+                statement.setNull(index, sqlType);
+            } else {
+                statement.setObject(index, val.get());
+            }
+        };
+    }
 
     protected JdbcSerializationConverter createNullableExternalConverter(Schema.Type type) {
         return wrapIntoNullableExternalConverter(createExternalConverter(type), type);
@@ -111,8 +124,6 @@ public class DynamicSqlRecordStatementFunction implements JdbcStatementBuilder<D
             default:
                 throw new UnsupportedOperationException("Unsupported type:" + type);
         }
-
-
     }
 
 }

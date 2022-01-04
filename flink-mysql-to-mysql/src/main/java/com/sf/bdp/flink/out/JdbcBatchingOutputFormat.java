@@ -154,6 +154,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchExec
 
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
+                validAndResetConnection();
                 attemptFlush();
                 batchCount = 0;
                 break;
@@ -162,16 +163,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchExec
                 if (i >= executionOptions.getMaxRetries()) {
                     throw new IOException(e);
                 }
-                try {
-                    if (!connectionProvider.isConnectionValid()) {
-                        updateExecutor(true);
-                    }
-                } catch (Exception exception) {
-                    LOG.error(
-                            "JDBC connection is not valid, and reestablish connection failed.",
-                            exception);
-                    throw new IOException("Reestablish JDBC connection failed", exception);
-                }
+                validAndResetConnection();
                 try {
                     Thread.sleep(1000 * i);
                 } catch (InterruptedException ex) {
@@ -213,14 +205,26 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchExec
         checkFlushException();
     }
 
+    public void validAndResetConnection() throws IOException {
+        try {
+            if (!connectionProvider.isConnectionValid()) {
+                updateExecutor(true);
+            }
+        } catch (Exception exception) {
+            LOG.error(
+                    "JDBC connection is not valid, and reestablish connection failed.",
+                    exception);
+            throw new IOException("Reestablish JDBC connection failed", exception);
+        }
+    }
+
+
     public void updateExecutor(boolean reconnect) throws SQLException, ClassNotFoundException {
         jdbcStatementExecutor.resetConnection(
                 reconnect
                         ? connectionProvider.reestablishConnection()
                         : connectionProvider.getConnection());
     }
-
-
 
 
 }

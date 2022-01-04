@@ -1,5 +1,6 @@
 package com.sf.bdp.flink.entity;
 
+import org.apache.flink.types.RowKind;
 import org.apache.kafka.connect.data.Schema;
 
 /**
@@ -11,21 +12,29 @@ import org.apache.kafka.connect.data.Schema;
  */
 public class DynamicSqlRecord {
 
+    private final String dbTable;
+    private final RowKind kind;
     private final String sql;
     private final String[] fieldNames;
     private final Schema.Type[] fieldTypes;
     private final Object[] values;
 
 
-    public DynamicSqlRecord(String sql, String[] fieldNames, Schema.Type[] fieldTypes, Object[] values) {
+    public DynamicSqlRecord(String dbTable, RowKind kind, String sql, String[] fieldNames, Schema.Type[] fieldTypes, Object[] values) {
+        this.dbTable = dbTable;
+        this.kind = kind;
         this.sql = sql;
         this.fieldNames = fieldNames;
         this.fieldTypes = fieldTypes;
         this.values = values;
     }
 
-    public String getSql() {
-        return sql;
+    public String getDbTable() {
+        return dbTable;
+    }
+
+    public RowKind getKind() {
+        return kind;
     }
 
     public String[] getFieldNames() {
@@ -40,8 +49,8 @@ public class DynamicSqlRecord {
         return values;
     }
 
-    public static DynamicSqlRecord forDynamicRowData(DynamicRowRecord rowData, String executeSql) {
-        return new DynamicSqlRecord(executeSql, rowData.getFieldNames(), rowData.getFieldTypes(), rowData.getValues());
+    public String getSql() {
+        return sql;
     }
 
 

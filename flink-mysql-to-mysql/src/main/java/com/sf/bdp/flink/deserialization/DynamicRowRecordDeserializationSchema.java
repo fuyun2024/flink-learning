@@ -110,7 +110,8 @@ public class DynamicRowRecordDeserializationSchema implements DebeziumDeserializ
         Object[] values = new Object[fieldType.length];
 
         for (int i = 0; i < fieldNames.length; i++) {
-            if (BYTES.equals(fieldType[i])) {
+//            if (BYTES.equals(fieldType[i])) {
+            if (BYTES.equals(fieldType[i]) && after.get(fieldNames[i]) instanceof ByteBuffer) {
                 values[i] = convertToBinary.convert(after.get(fieldNames[i]), null);
             } else {
                 values[i] = after.get(fieldNames[i]);
