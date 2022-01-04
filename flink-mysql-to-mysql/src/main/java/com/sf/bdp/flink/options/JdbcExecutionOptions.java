@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.sf.bdp.flink;
+package com.sf.bdp.flink.options;
 
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.util.Preconditions;

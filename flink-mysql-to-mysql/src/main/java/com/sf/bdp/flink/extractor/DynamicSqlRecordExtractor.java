@@ -21,11 +21,11 @@ public class DynamicSqlRecordExtractor implements RecordExtractor<Tuple2<String,
             case UPDATE_BEFORE:
             case UPDATE_AFTER:
                 String upsertSql = getUpsertSql(record.getDbName(), record.getTableName(), record.getFieldNames());
-                return new DynamicSqlRecord(upsertSql, RowKind.INSERT, upsertSql,
+                return new DynamicSqlRecord(tuple2.f0, RowKind.INSERT, upsertSql,
                         record.getFieldNames(), record.getFieldTypes(), record.getValues());
             case DELETE:
                 String deleteSql = getDeleteSql(record.getDbName(), record.getTableName(), record.getKeyNames());
-                return new DynamicSqlRecord(deleteSql, RowKind.DELETE, deleteSql,
+                return new DynamicSqlRecord(tuple2.f0, RowKind.DELETE, deleteSql,
                         record.getKeyNames(), record.getKeyTypes(), record.getKeyValues());
             default:
                 throw new UnsupportedOperationException("Unsupported type:" + record.getKind());

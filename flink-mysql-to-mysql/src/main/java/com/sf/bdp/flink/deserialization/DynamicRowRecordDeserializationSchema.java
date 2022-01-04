@@ -54,9 +54,8 @@ public class DynamicRowRecordDeserializationSchema implements DebeziumDeserializ
         String dbName = split[0];
         String tableName = split[1];
 
-
         // todo
-        dbName = dbName + "_copy";
+         dbName = dbName + "_copy";
 
 
         Envelope.Operation op = Envelope.operationFor(sourceRecord);

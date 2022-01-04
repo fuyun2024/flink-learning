@@ -7,6 +7,7 @@ import com.sf.bdp.flink.executor.DynamicSqlRecordBatchExecutor;
 import com.sf.bdp.flink.executor.DynamicSqlRecordMapBatchExecutor;
 import com.sf.bdp.flink.executor.JdbcBatchExecutor;
 import com.sf.bdp.flink.extractor.DynamicSqlRecordExtractor;
+import com.sf.bdp.flink.options.JdbcConnectionOptions;
 import com.sf.bdp.flink.out.JdbcBatchingOutputFormat;
 import com.sf.bdp.flink.statement.DynamicSqlRecordStatementFunction;
 import org.apache.flink.api.java.tuple.Tuple2;

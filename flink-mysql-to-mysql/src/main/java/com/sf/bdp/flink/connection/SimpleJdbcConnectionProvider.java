@@ -17,7 +17,7 @@
 
 package com.sf.bdp.flink.connection;
 
-import com.sf.bdp.flink.JdbcConnectionOptions;
+import com.sf.bdp.flink.options.JdbcConnectionOptions;
 import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,6 +3,8 @@ package com.sf.bdp.flink.entity;
 import org.apache.flink.types.RowKind;
 import org.apache.kafka.connect.data.Schema;
 
+import java.util.Arrays;
+
 /**
  * description:
  * ------------------------------------
@@ -54,5 +56,16 @@ public class DynamicSqlRecord {
     }
 
 
+    @Override
+    public String toString() {
+        return "DynamicSqlRecord{" +
+                "dbTable='" + dbTable + '\'' +
+                ", kind=" + kind +
+                ", sql='" + sql + '\'' +
+                ", fieldNames=" + Arrays.toString(fieldNames) +
+                ", fieldTypes=" + Arrays.toString(fieldTypes) +
+                ", values=" + Arrays.toString(values) +
+                '}';
+    }
 }
 

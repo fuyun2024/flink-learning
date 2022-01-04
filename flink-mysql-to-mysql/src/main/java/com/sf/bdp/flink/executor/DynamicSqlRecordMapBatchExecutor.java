@@ -84,6 +84,7 @@ public class DynamicSqlRecordMapBatchExecutor implements JdbcBatchExecutor<Dynam
                 LOG.error("", e);
                 // 回滚
                 rollback(connection);
+                LOG.error(batch.toString());
                 // 回滚完成后，主动抛出异常
                 throw new SQLException("更新数据失败");
             }
