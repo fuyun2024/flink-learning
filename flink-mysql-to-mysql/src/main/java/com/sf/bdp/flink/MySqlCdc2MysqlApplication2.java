@@ -6,7 +6,6 @@ import com.sf.bdp.flink.entity.DynamicSqlRecord;
 import com.sf.bdp.flink.executor.JdbcBatchExecutor;
 import com.sf.bdp.flink.options.JdbcConnectionOptions;
 import com.sf.bdp.flink.out.JdbcBatchingOutputFormat;
-import com.sf.bdp.flink.sink.GenericJdbcSinkFunction;
 import com.sf.bdp.flink.utils.PropertiesUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -26,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Arrays;
 
-public class MySqlCdc2MysqlApplication {
+public class MySqlCdc2MysqlApplication2 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MySqlCdc2MysqlApplication.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MySqlCdc2MysqlApplication2.class);
 
 
     public static void main(String[] args) throws Exception {
@@ -77,11 +76,13 @@ public class MySqlCdc2MysqlApplication {
         conf.setString("state.checkpoints.num-retained", "3");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
+        env.setParallelism(1);
         setCheckPoint(env, parameter);
         env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                 // keyBy 保证表内有序，并且可以批量提交
                 .keyBy(t -> t.f0)
-                .addSink(new GenericJdbcSinkFunction(build));
+                .print();
+//                .addSink(new GenericJdbcSinkFunction(build));
         env.execute("Print MySQL Snapshot + Binlog");
     }
 

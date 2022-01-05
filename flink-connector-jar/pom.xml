@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>flink-mysql-to-mysql</artifactId>
+    <artifactId>flink-connector-jar</artifactId>
 
 
     <properties>
@@ -42,21 +42,18 @@
             <version>2.1.1</version>
         </dependency>
 
-        <!--    jdbc connector   -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-connector-jdbc_2.12</artifactId>-->
-        <!--            <version>${flink.version}</version>-->
-        <!--            <scope>provided</scope>-->
-        <!--        </dependency>-->
-
+        <!--   kafka  connector  -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.16</version>
-            <scope>provided</scope>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka_2.11</artifactId>
+            <version>${flink.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.76</version>
+        </dependency>
 
 
         <!--    flink    -->
@@ -134,14 +131,6 @@
 
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>src/main/env/${envFlag}</directory>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -180,6 +169,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -190,47 +180,7 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>com.ververica:flink-connector-mysql-cdc</artifact>
-                                    <excludes>
-                                        <exclude>
-                                            com/ververica/cdc/connectors/mysql/source/config/MySqlSourceConfigFactory
-                                        </exclude>
-                                        <exclude>
-                                            com/ververica/cdc/connectors/mysql/source/assigners/MySqlBinlogSplitAssigner
-                                        </exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-<!--                            <shadedArtifactAttached>true</shadedArtifactAttached>-->
-<!--                            &lt;!&ndash;生成 jar 包的名称后缀&ndash;&gt;-->
-<!--                            <shadedClassifierName>jar-with-dependencies</shadedClassifierName>-->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
-
 
     </build>
 

@@ -41,3 +41,5 @@ debug.properties
 /flink-mysql-to-mysql/src/main/resources/hdfs-site.xml
 /flink-mysql-to-mysql/src/main/resources/hive-site.xml
 /checkpoint-dir/
+/checkpoint-dir/
+/github-code/

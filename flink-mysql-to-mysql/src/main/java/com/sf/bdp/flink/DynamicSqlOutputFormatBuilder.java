@@ -8,10 +8,10 @@ import com.sf.bdp.flink.executor.DynamicSqlRecordMapBatchExecutor;
 import com.sf.bdp.flink.executor.JdbcBatchExecutor;
 import com.sf.bdp.flink.extractor.DynamicSqlRecordExtractor;
 import com.sf.bdp.flink.options.JdbcConnectionOptions;
+import com.sf.bdp.flink.options.JdbcExecutionOptions;
 import com.sf.bdp.flink.out.JdbcBatchingOutputFormat;
 import com.sf.bdp.flink.statement.DynamicSqlRecordStatementFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 

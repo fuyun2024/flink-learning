@@ -103,6 +103,7 @@ public class DynamicSqlRecordMapBatchExecutor implements JdbcBatchExecutor<Dynam
         for (DynamicSqlRecord record : recordList) {
             if (!record.getKind().equals(currentMode)) {
                 currentMode = record.getKind();
+                isUpdate = true;
             }
 
             if (isUpdate) {
