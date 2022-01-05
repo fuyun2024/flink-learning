@@ -77,7 +77,6 @@ public class MySqlCdc2MysqlApplication {
         conf.setString("state.checkpoints.num-retained", "3");
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
-        env.setParallelism(1);
         setCheckPoint(env, parameter);
         env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                 // keyBy 保证表内有序，并且可以批量提交
