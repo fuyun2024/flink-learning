@@ -1,8 +1,11 @@
 package com.sf.bdp.flink;
 
 import com.alibaba.fastjson.JSON;
-import com.sf.bdp.flink.deserialization.Tuple2DeserializationSchema;
-import com.sf.bdp.flink.entity.DynamicTopicSerialization;
+import com.sf.bdp.flink.deserialization.GenericRowRecordDeserialization;
+import com.sf.bdp.flink.entity.GenericKafkaSerializationSchema;
+import com.sf.bdp.flink.entity.GenericRowRecord;
+import com.sf.bdp.flink.extractor.ProducerRecordExtractor;
+import com.sf.bdp.flink.extractor.RecordExtractor;
 import com.sf.bdp.flink.utils.PropertiesUtil;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -39,11 +42,11 @@ public class MySqlCdc2KafkaApplication {
 
 
         // create mysqlCdcSource
-        MySqlSource<Tuple2<String, byte[]>> mysqlCdcSource = createSource(parameter);
+        MySqlSource<Tuple2<String, GenericRowRecord>> mysqlCdcSource = createSource(parameter);
 
 
         // create kafkaSink
-        FlinkKafkaProducer<Tuple2<String, byte[]>> kafkaSink = createSink(parameter);
+        FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> kafkaSink = createSink(parameter);
 
 
         // main
@@ -62,23 +65,25 @@ public class MySqlCdc2KafkaApplication {
         env.execute("Print MySQL Snapshot + Binlog");
     }
 
-    private static FlinkKafkaProducer<Tuple2<String, byte[]>> createSink(ApplicationParameter parameter) {
+    private static FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> createSink(ApplicationParameter parameter) {
         Properties kafkaProperties = new Properties();
         kafkaProperties.setProperty("bootstrap.servers", parameter.getSinkBootstrapServers());
         kafkaProperties.setProperty("transaction.max.timeout.ms", 15 * 60 * 1000 + "");
         kafkaProperties.setProperty("transaction.timeout.ms", Long.valueOf(parameter.getCheckpointInterval()) * 1000 + "");
 
         Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
-        return new FlinkKafkaProducer<>("", new DynamicTopicSerialization(tableTopicMap),
+        RecordExtractor recordExtractor = new ProducerRecordExtractor(tableTopicMap);
+
+        return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(recordExtractor),
                 kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
 
 
-    private static MySqlSource<Tuple2<String, byte[]>> createSource(ApplicationParameter parameter) {
+    private static MySqlSource<Tuple2<String, GenericRowRecord>> createSource(ApplicationParameter parameter) {
         String[] databaseArray = Arrays.stream(parameter.getSourceDatabaseList().split(",")).toArray(String[]::new);
         String[] tableArray = Arrays.stream(parameter.getSourceTableList().split(",")).toArray(String[]::new);
 
-        return MySqlSource.<Tuple2<String, byte[]>>builder()
+        return MySqlSource.<Tuple2<String, GenericRowRecord>>builder()
                 .hostname(parameter.getSourceHostName())
                 .port(Integer.valueOf(parameter.getSourcePort()))
                 .databaseList(databaseArray)
@@ -87,7 +92,7 @@ public class MySqlCdc2KafkaApplication {
                 .password(parameter.getSourcePassword())
 //                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
                 .startupOptions(StartupOptions.initial())
-                .deserializer(new Tuple2DeserializationSchema())
+                .deserializer(new GenericRowRecordDeserialization())
                 .serverTimeZone("Asia/Shanghai")
                 .build();
     }
