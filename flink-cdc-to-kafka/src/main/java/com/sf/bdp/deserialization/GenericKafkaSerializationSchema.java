@@ -1,6 +1,6 @@
-package com.sf.bdp.flink.entity;
+package com.sf.bdp.deserialization;
 
-import com.sf.bdp.flink.extractor.RecordExtractor;
+import com.sf.bdp.extractor.RecordExtractor;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 

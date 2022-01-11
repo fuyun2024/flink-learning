@@ -1,6 +1,6 @@
-package com.sf.bdp.flink.utils;
+package com.sf.bdp.utils;
 
-import com.sf.bdp.flink.ApplicationParameter;
+import com.sf.bdp.ApplicationParameter;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

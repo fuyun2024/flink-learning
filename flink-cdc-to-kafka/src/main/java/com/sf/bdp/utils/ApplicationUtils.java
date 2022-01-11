@@ -1,20 +1,18 @@
-package com.sf.bdp.flink;
+package com.sf.bdp.utils;
 
 import com.alibaba.fastjson.JSON;
-import com.sf.bdp.flink.deserialization.GenericRowRecordDeserialization;
-import com.sf.bdp.flink.entity.GenericKafkaSerializationSchema;
-import com.sf.bdp.flink.entity.GenericRowRecord;
-import com.sf.bdp.flink.extractor.ProducerRecordExtractor;
-import com.sf.bdp.flink.extractor.RecordExtractor;
-import com.sf.bdp.flink.utils.PropertiesUtil;
+import com.sf.bdp.ApplicationParameter;
+import com.sf.bdp.deserialization.GenericKafkaSerializationSchema;
+import com.sf.bdp.entity.GenericRowRecord;
+import com.sf.bdp.deserialization.GenericRowRecordDeserializationSchema;
+import com.sf.bdp.extractor.BaseProducerRecordExtractor;
+import com.sf.bdp.extractor.RecordExtractor;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.calcite.shaded.com.google.common.base.Preconditions;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
@@ -28,58 +26,34 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
-public class MySqlCdc2KafkaApplication {
+public class ApplicationUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MySqlCdc2KafkaApplication.class);
-
-
-    public static void main(String[] args) throws Exception {
-        Arrays.stream(args).forEach(arg -> LOG.info("{}", arg));
-
-        // 获取参数信息
-        ApplicationParameter parameter = buildJobParameter(args);
-        validateJobParameter(parameter);
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationUtils.class);
 
 
-        // create mysqlCdcSource
-        MySqlSource<Tuple2<String, GenericRowRecord>> mysqlCdcSource = createSource(parameter);
-
-
-        // create kafkaSink
-        FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> kafkaSink = createSink(parameter);
-
-
-        // main
-        Configuration conf = new Configuration();
-        conf.setString("state.checkpoints.num-retained", "3");
-
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
-        setCheckPoint(env, parameter);
-        env.fromSource(mysqlCdcSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
-                // keyBy dbTable 保证表内有序
-                .keyBy(t -> t.f0)
-                // keyBy key 同一记录有序
-//                .keyBy(t -> t.f1)
-                .addSink(kafkaSink);
-
-        env.execute("Print MySQL Snapshot + Binlog");
+    public static ApplicationParameter buildJobParameter(String[] args) {
+        ParameterTool parameterTool = ParameterTool.fromArgs(args);
+        String propertiesFile = parameterTool.get("propertiesFile");
+        Preconditions.checkNotNull(propertiesFile, "-propertiesFile 参数不能为空");
+        return PropertiesUtil.loadObjectByProperties(new ApplicationParameter(), propertiesFile);
     }
 
-    private static FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> createSink(ApplicationParameter parameter) {
+
+    public static FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> createSink(ApplicationParameter parameter) {
         Properties kafkaProperties = new Properties();
         kafkaProperties.setProperty("bootstrap.servers", parameter.getSinkBootstrapServers());
         kafkaProperties.setProperty("transaction.max.timeout.ms", 15 * 60 * 1000 + "");
         kafkaProperties.setProperty("transaction.timeout.ms", Long.valueOf(parameter.getCheckpointInterval()) * 1000 + "");
 
         Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
-        RecordExtractor recordExtractor = new ProducerRecordExtractor(tableTopicMap);
+        RecordExtractor recordExtractor = new BaseProducerRecordExtractor(tableTopicMap);
 
         return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(recordExtractor),
                 kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
 
 
-    private static MySqlSource<Tuple2<String, GenericRowRecord>> createSource(ApplicationParameter parameter) {
+    public static MySqlSource<Tuple2<String, GenericRowRecord>> createSource(ApplicationParameter parameter) {
         String[] databaseArray = Arrays.stream(parameter.getSourceDatabaseList().split(",")).toArray(String[]::new);
         String[] tableArray = Arrays.stream(parameter.getSourceTableList().split(",")).toArray(String[]::new);
 
@@ -90,15 +64,15 @@ public class MySqlCdc2KafkaApplication {
                 .tableList(tableArray)
                 .username(parameter.getSourceUsername())
                 .password(parameter.getSourcePassword())
-//                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
-                .startupOptions(StartupOptions.initial())
-                .deserializer(new GenericRowRecordDeserialization())
+                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
+//                .startupOptions(StartupOptions.initial())
+                .deserializer(new GenericRowRecordDeserializationSchema())
                 .serverTimeZone("Asia/Shanghai")
                 .build();
     }
 
 
-    private static void setCheckPoint(StreamExecutionEnvironment env, ApplicationParameter parameter) {
+    public static void setCheckPoint(StreamExecutionEnvironment env, ApplicationParameter parameter) {
         // checkPoint 时间间隔
         env.enableCheckpointing(Long.valueOf(parameter.getCheckpointInterval()) * 1000);
         CheckpointConfig ckConfig = env.getCheckpointConfig();
@@ -136,18 +110,8 @@ public class MySqlCdc2KafkaApplication {
         }
     }
 
-    private static void validateJobParameter(ApplicationParameter applicationParameter) {
+    public static void validateJobParameter(ApplicationParameter applicationParameter) {
         // todo
-    }
-
-
-    private static ApplicationParameter buildJobParameter(String[] args) {
-        ParameterTool parameterTool = ParameterTool.fromArgs(args);
-        String propertiesFile = parameterTool.get("propertiesFile");
-        Preconditions.checkNotNull(propertiesFile, "-propertiesFile 参数不能为空");
-
-//       return  PropertiesUtil.loadObjectByProperties( new JobParameter(), System.getProperty("user.dir") + "\\conf\\mysql2kafka.properties");
-        return PropertiesUtil.loadObjectByProperties(new ApplicationParameter(), propertiesFile);
     }
 
 

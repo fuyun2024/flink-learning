@@ -1,4 +1,4 @@
-package com.sf.bdp.flink;
+package com.sf.bdp;
 
 import com.alibaba.fastjson.JSON;
 

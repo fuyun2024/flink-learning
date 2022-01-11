@@ -1,6 +1,6 @@
-package com.sf.bdp.flink.deserialization;
+package com.sf.bdp.deserialization;
 
-import com.sf.bdp.flink.entity.GenericRowRecord;
+import com.sf.bdp.entity.GenericRowRecord;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.DeserializationRuntimeConverter;
 import io.debezium.data.Envelope;
@@ -26,7 +26,7 @@ import static org.apache.kafka.connect.data.Schema.Type.BYTES;
  * ------------------------------------
  * created by eHui on 2021/12/31
  */
-public class GenericRowRecordDeserialization implements DebeziumDeserializationSchema<Tuple2<String, GenericRowRecord>> {
+public class GenericRowRecordDeserializationSchema implements DebeziumDeserializationSchema<Tuple2<String, GenericRowRecord>> {
 
     private static final long serialVersionUID = -3168848963123670603L;
 

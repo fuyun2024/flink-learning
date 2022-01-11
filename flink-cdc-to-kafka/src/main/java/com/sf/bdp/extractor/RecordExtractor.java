@@ -1,4 +1,4 @@
-package com.sf.bdp.flink.extractor;
+package com.sf.bdp.extractor;
 
 import java.io.Serializable;
 import java.util.function.Function;

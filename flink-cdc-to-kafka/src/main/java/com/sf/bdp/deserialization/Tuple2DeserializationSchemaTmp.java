@@ -1,4 +1,4 @@
-package com.sf.bdp.flink.deserialization;
+package com.sf.bdp.deserialization;
 
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeHint;

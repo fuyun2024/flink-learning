@@ -1,10 +1,13 @@
-package com.sf.bdp.flink.entity;
+package com.sf.bdp.entity;
 
 import com.alibaba.fastjson.JSON;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.kafka.connect.data.Schema;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 
 /**
@@ -28,6 +31,20 @@ public class GenericRowRecord implements Serializable {
     private Schema.Type[] fieldTypes;
     private Object[] values;
 
+
+    public String getDbTable() {
+        if (StringUtils.isNotBlank(dbName) && StringUtils.isNotBlank(tableName)) {
+            return dbName + "." + tableName;
+        }
+        return null;
+    }
+
+    public String getKeyValueString() {
+        if (values != null && values.length > 0) {
+            return Arrays.stream(values).map(String::valueOf).collect(Collectors.joining("."));
+        }
+        return null;
+    }
 
     public String getDbName() {
         return dbName;

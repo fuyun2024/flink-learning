@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>flink-cdc-to-kafka</artifactId>
+    <artifactId>flink-connector-jar</artifactId>
 
 
     <properties>
@@ -40,7 +40,6 @@
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
             <version>2.1.1</version>
-            <scope>provided</scope>
         </dependency>
 
         <!--   kafka  connector  -->
@@ -48,14 +47,12 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka_2.11</artifactId>
             <version>${flink.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.76</version>
-            <scope>provided</scope>
         </dependency>
 
 
@@ -136,28 +133,53 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>run-allatori</id>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
                 <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>-Xms128m</argument>
-                        <argument>-Xmx512m</argument>
-                        <argument>-jar</argument>
-                        <argument>${basedir}/../allatori/allatori.jar</argument>
-                        <argument>${basedir}/target/classes/allatori.xml</argument>
-                    </arguments>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
+
         </plugins>
 
     </build>
