@@ -1,4 +1,4 @@
-package com.sf.bdp.demo;
+package com.sf.bdp.Hybrid;
 
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
