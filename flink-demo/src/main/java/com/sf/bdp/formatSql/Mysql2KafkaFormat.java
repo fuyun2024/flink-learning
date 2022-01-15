@@ -1,11 +1,11 @@
-package com.sf.bdp.avroConfluent;
+package com.sf.bdp.formatSql;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
-public class Mysql2Kafka_json {
+public class Mysql2KafkaFormat {
 
     public static void main(String[] args) {
         // main
@@ -18,8 +18,8 @@ public class Mysql2Kafka_json {
         StreamTableEnvironment tEnv = StreamTableEnvironment.create(streamEnv, blinkStreamSettings);
 
 
-        streamEnv.setParallelism(2);
-        streamEnv.enableCheckpointing(1000 * 30);
+        streamEnv.setParallelism(1);
+        streamEnv.enableCheckpointing(1000 * 10);
 
 
         String mysqlCdcTable = "CREATE TABLE mysql_cdc_source\n" +
@@ -39,25 +39,6 @@ public class Mysql2Kafka_json {
                 ")";
 
 
-        String mysqlSink = "CREATE TABLE avro_test1 (\n" +
-                "  the_kafka_key STRING,\n" +
-                "  id BIGINT,\n" +
-                "  name STRING, \n" +
-                "  price DOUBLE, \n" +
-                "  ts BIGINT, \n" +
-                "  dt TIMESTAMP(3)\n" +
-                ") WITH (\n" +
-                "  'connector' = 'kafka',\n" +
-                "  'topic' = 'avro_test1',\n" +
-                "  'properties.zookeeper.connect' = '192.168.152.128:2181',\n" +
-                "  'properties.bootstrap.servers' = '192.168.152.128:9092',\n" +
-//                "  'format' = 'debezium-json'\n" +
-                "  'format' = 'debezium-avro-confluent'\n" +
-//                "  'format' = 'json'\n" +
-//                "  'format' = 'avro'\n" +
-                ")";
-
-//
 //        String mysqlSink = "CREATE TABLE avro_test1 (\n" +
 //                "  the_kafka_key STRING,\n" +
 //                "  id BIGINT,\n" +
@@ -68,13 +49,34 @@ public class Mysql2Kafka_json {
 //                ") WITH (\n" +
 //                "  'connector' = 'kafka',\n" +
 //                "  'topic' = 'avro_test1',\n" +
+//                "  'properties.zookeeper.connect' = '192.168.152.128:2181',\n" +
 //                "  'properties.bootstrap.servers' = '192.168.152.128:9092',\n" +
-//                "  'key.format' = 'raw',\n" +
-//                "  'key.fields' = 'the_kafka_key',\n" +
-//                "  'value.format' = 'avro-confluent',\n" +
-//                "  'value.avro-confluent.schema-registry.url' = 'http://192.168.152.128:8081',\n" +
-//                "  'value.fields-include' = 'EXCEPT_KEY'\n" +
+////                "  'format' = 'json'\n" +
+////                "  'format' = 'avro'\n" +
+////                "  'format' = 'csv'\n" +
+////                "  'format' = 'debezium-json'\n" +
 //                ")";
+
+
+
+        String mysqlSink = "CREATE TABLE avro_test1 (\n" +
+                "  the_kafka_key STRING,\n" +
+                "  id BIGINT,\n" +
+                "  id2 BIGINT,\n" +
+                "  name STRING, \n" +
+                "  price DOUBLE, \n" +
+                "  ts BIGINT, \n" +
+                "  dt TIMESTAMP(3)\n" +
+                ") WITH (\n" +
+                "  'connector' = 'kafka',\n" +
+                "  'topic' = 'avro_test2',\n" +
+                "  'properties.bootstrap.servers' = '192.168.152.128:9092',\n" +
+                "  'key.format' = 'raw',\n" +
+                "  'key.fields' = 'the_kafka_key',\n" +
+                "  'value.format' = 'avro-confluent',\n" +
+                "  'value.avro-confluent.schema-registry.url' = 'http://192.168.152.128:8081',\n" +
+                "  'value.fields-include' = 'EXCEPT_KEY'\n" +
+                ")";
 
 
 //       String mysqlSink = "CREATE TABLE mysqlSink (\n" +
@@ -97,6 +99,6 @@ public class Mysql2Kafka_json {
         tEnv.executeSql(mysqlCdcTable);
         tEnv.executeSql(mysqlSink);
         tEnv.executeSql("insert into avro_test1 " +
-                " select cast(id as string) as the_kafka_key,id,name,price,ts,dt from mysql_cdc_source");
+                " select cast(id as string) as the_kafka_key,id,id as id2,name,price,ts,dt from mysql_cdc_source");
     }
 }
