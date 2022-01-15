@@ -3,8 +3,9 @@
 // (powered by FernFlower decompiler)
 //
 
-package com.sf.bdp.extractor.serialization;
+package com.sf.bdp.extractor.coder;
 
+import com.sf.bdp.extractor.coder.WriteSchemaCoder;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import org.apache.avro.Schema;

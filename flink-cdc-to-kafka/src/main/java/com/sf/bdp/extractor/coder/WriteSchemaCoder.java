@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.sf.bdp.extractor.serialization;
+package com.sf.bdp.extractor.coder;
 
 import org.apache.avro.Schema;
 

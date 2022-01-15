@@ -18,6 +18,7 @@
 
 package com.sf.bdp.extractor.serialization;
 
+import com.sf.bdp.extractor.coder.WriteSchemaCoder;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.Encoder;
