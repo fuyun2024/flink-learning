@@ -6,7 +6,9 @@ import com.sf.bdp.deserialization.GenericKafkaSerializationSchema;
 import com.sf.bdp.entity.GenericRowRecord;
 import com.sf.bdp.deserialization.GenericRowRecordDeserializationSchema;
 import com.sf.bdp.extractor.BaseProducerRecordExtractor;
+import com.sf.bdp.extractor.DynamicRecordExtractor;
 import com.sf.bdp.extractor.RecordExtractor;
+import com.sf.bdp.extractor.StringRecordExtractor;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +48,8 @@ public class ApplicationUtils {
         kafkaProperties.setProperty("transaction.timeout.ms", Long.valueOf(parameter.getCheckpointInterval()) * 1000 + "");
 
         Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
-        RecordExtractor recordExtractor = new BaseProducerRecordExtractor(tableTopicMap);
+        RecordExtractor recordExtractor = new StringRecordExtractor(tableTopicMap);
+        RecordExtractor dynamicRecordExtractor = new DynamicRecordExtractor(tableTopicMap);
 
         return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(recordExtractor),
                 kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);

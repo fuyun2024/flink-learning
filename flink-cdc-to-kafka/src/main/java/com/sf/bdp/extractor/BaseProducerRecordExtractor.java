@@ -5,10 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class BaseProducerRecordExtractor implements RecordExtractor<Tuple2<String, GenericRowRecord>, ProducerRecord<byte[], byte[]>> {
+public abstract class BaseProducerRecordExtractor implements RecordExtractor<Tuple2<String, GenericRowRecord>, ProducerRecord<byte[], byte[]>> {
 
     protected final Map<String, String> tableTopicMap;
 
@@ -21,9 +20,18 @@ public class BaseProducerRecordExtractor implements RecordExtractor<Tuple2<Strin
         GenericRowRecord record = tuple2.f1;
         String topicName = tableTopicMap.get(record.getDbTable());
         if (StringUtils.isNotBlank(topicName)) {
-            return new ProducerRecord(topicName, record.toString().getBytes(StandardCharsets.UTF_8));
+            return new ProducerRecord(topicName, extractorRecord(record));
         }
         return null;
     }
+
+
+    /**
+     * 提取数据
+     *
+     * @param record
+     * @return
+     */
+    protected abstract byte[] extractorRecord(GenericRowRecord record);
 
 }

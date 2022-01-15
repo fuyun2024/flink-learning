@@ -53,6 +53,7 @@ public class GenericRowRecordDeserializationSchema implements DebeziumDeserializ
             setExtractAfterRow(genericRowRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericRowRecord.setKind(RowKind.INSERT);
         } else if (op == Envelope.Operation.DELETE) {
+            setExtractBeforeRow(genericRowRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericRowRecord.setKind(RowKind.DELETE);
         } else {
 //            todo 占时不处理
