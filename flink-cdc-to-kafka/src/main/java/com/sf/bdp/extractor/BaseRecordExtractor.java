@@ -7,22 +7,30 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Map;
 
-public abstract class BaseProducerRecordExtractor implements RecordExtractor<Tuple2<String, GenericRowRecord>, ProducerRecord<byte[], byte[]>> {
+public abstract class BaseRecordExtractor implements RecordExtractor<Tuple2<String, GenericRowRecord>, ProducerRecord<byte[], byte[]>> {
 
     protected final Map<String, String> tableTopicMap;
 
-    public BaseProducerRecordExtractor(Map<String, String> tableTopicMap) {
+    public BaseRecordExtractor(Map<String, String> tableTopicMap) {
         this.tableTopicMap = tableTopicMap;
     }
 
     @Override
     public ProducerRecord<byte[], byte[]> apply(Tuple2<String, GenericRowRecord> tuple2) {
         GenericRowRecord record = tuple2.f1;
-        String topicName = tableTopicMap.get(record.getDbTable());
+        String topicName = getTopicName(record.getDbTable());
         if (StringUtils.isNotBlank(topicName)) {
             return new ProducerRecord(topicName, extractorRecord(record));
         }
         return null;
+    }
+
+    public String getTopicName(String dbTable) {
+        return tableTopicMap.get(dbTable);
+    }
+
+    public String getValueSubject(String dbTable) {
+        return getTopicName(dbTable) + "-value";
     }
 
 
@@ -33,5 +41,6 @@ public abstract class BaseProducerRecordExtractor implements RecordExtractor<Tup
      * @return
      */
     protected abstract byte[] extractorRecord(GenericRowRecord record);
+
 
 }

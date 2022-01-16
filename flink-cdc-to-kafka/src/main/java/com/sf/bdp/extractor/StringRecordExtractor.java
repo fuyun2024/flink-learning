@@ -5,7 +5,7 @@ import com.sf.bdp.entity.GenericRowRecord;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class StringRecordExtractor extends BaseProducerRecordExtractor {
+public class StringRecordExtractor extends BaseRecordExtractor {
 
 
     public StringRecordExtractor(Map<String, String> tableTopicMap) {

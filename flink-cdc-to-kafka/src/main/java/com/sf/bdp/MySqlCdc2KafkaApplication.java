@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-import static com.sf.bdp.utils.ApplicationUtils.*;
+import static com.sf.bdp.utils.ApplicationHelper.*;
 
 public class MySqlCdc2KafkaApplication {
 
@@ -41,6 +41,7 @@ public class MySqlCdc2KafkaApplication {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         setCheckPoint(env, parameter);
+        env.setParallelism(1);
         env.fromSource(mysqlCdcSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                 // keyBy dbTable 保证表内有序
                 .keyBy(t -> t.f0)

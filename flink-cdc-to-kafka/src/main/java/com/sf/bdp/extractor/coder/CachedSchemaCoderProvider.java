@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
-class CachedSchemaCoderProvider implements WriteSchemaCoder.SchemaCoderProvider {
+public class CachedSchemaCoderProvider implements WriteSchemaCoder.SchemaCoderProvider {
 
     private static final long serialVersionUID = 8610401613495438381L;
     private final String url;
@@ -14,11 +14,11 @@ class CachedSchemaCoderProvider implements WriteSchemaCoder.SchemaCoderProvider 
     @Nullable
     private final Map<String, ?> registryConfigs;
 
-    CachedSchemaCoderProvider(String url, int identityMapCapacity) {
-        this((String) null, url, identityMapCapacity, (Map) null);
+    public CachedSchemaCoderProvider(String url, int identityMapCapacity) {
+        this(url, identityMapCapacity, (Map) null);
     }
 
-    CachedSchemaCoderProvider(@Nullable String subject, String url, int identityMapCapacity, @Nullable Map<String, ?> registryConfigs) {
+    CachedSchemaCoderProvider(String url, int identityMapCapacity, @Nullable Map<String, ?> registryConfigs) {
         this.url = (String) Objects.requireNonNull(url);
         this.identityMapCapacity = identityMapCapacity;
         this.registryConfigs = registryConfigs;

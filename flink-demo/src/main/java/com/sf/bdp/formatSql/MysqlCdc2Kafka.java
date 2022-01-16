@@ -19,7 +19,7 @@ public class MysqlCdc2Kafka {
 
 
         streamEnv.setParallelism(1);
-        streamEnv.enableCheckpointing(1000 * 30);
+        streamEnv.enableCheckpointing(1000 * 10);
 
 
         String mysqlCdcTable = "CREATE TABLE mysql_cdc_source\n" +

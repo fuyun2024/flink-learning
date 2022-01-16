@@ -5,10 +5,10 @@ import com.sf.bdp.ApplicationParameter;
 import com.sf.bdp.deserialization.GenericKafkaSerializationSchema;
 import com.sf.bdp.entity.GenericRowRecord;
 import com.sf.bdp.deserialization.GenericRowRecordDeserializationSchema;
-import com.sf.bdp.extractor.BaseProducerRecordExtractor;
 import com.sf.bdp.extractor.DynamicRecordExtractor;
+import com.sf.bdp.extractor.DynamicRecordExtractor2;
 import com.sf.bdp.extractor.RecordExtractor;
-import com.sf.bdp.extractor.StringRecordExtractor;
+import com.sf.bdp.extractor.coder.CachedSchemaCoderProvider;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.commons.lang3.StringUtils;
@@ -28,9 +28,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
-public class ApplicationUtils {
+public class ApplicationHelper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ApplicationUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationHelper.class);
 
 
     public static ApplicationParameter buildJobParameter(String[] args) {
@@ -48,10 +48,14 @@ public class ApplicationUtils {
         kafkaProperties.setProperty("transaction.timeout.ms", Long.valueOf(parameter.getCheckpointInterval()) * 1000 + "");
 
         Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
-        RecordExtractor recordExtractor = new StringRecordExtractor(tableTopicMap);
-        RecordExtractor dynamicRecordExtractor = new DynamicRecordExtractor(tableTopicMap);
+//        RecordExtractor recordExtractor = new StringRecordExtractor(tableTopicMap);
 
-        return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(recordExtractor),
+        String url = "http://192.168.152.128:8081";
+        CachedSchemaCoderProvider schemaCoderProvider = new CachedSchemaCoderProvider(url, 1000);
+
+        RecordExtractor dynamicRecordExtractor = new DynamicRecordExtractor2(tableTopicMap, schemaCoderProvider);
+
+        return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(dynamicRecordExtractor),
                 kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
 
@@ -67,8 +71,8 @@ public class ApplicationUtils {
                 .tableList(tableArray)
                 .username(parameter.getSourceUsername())
                 .password(parameter.getSourcePassword())
-                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
-//                .startupOptions(StartupOptions.initial())
+//                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
+                .startupOptions(StartupOptions.initial())
                 .deserializer(new GenericRowRecordDeserializationSchema())
                 .serverTimeZone("Asia/Shanghai")
                 .build();
