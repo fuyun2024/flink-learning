@@ -1,6 +1,6 @@
 package com.sf.bdp;
 
-import com.sf.bdp.entity.GenericRowRecord;
+import com.sf.bdp.entity.GenericCdcRecord;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -28,11 +28,11 @@ public class MySqlCdc2KafkaApplication {
 
 
         // create mysqlCdcSource
-        MySqlSource<Tuple2<String, GenericRowRecord>> mysqlCdcSource = createSource(parameter);
+        MySqlSource<Tuple2<String, GenericCdcRecord>> mysqlCdcSource = createSource(parameter);
 
 
         // create kafkaSink
-        FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> kafkaSink = createSink(parameter);
+        FlinkKafkaProducer<Tuple2<String, GenericCdcRecord>> kafkaSink = createSink(parameter);
 
 
         // main

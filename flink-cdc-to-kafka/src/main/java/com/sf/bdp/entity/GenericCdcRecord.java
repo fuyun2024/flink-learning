@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * ------------------------------------
  * created by eHui on 2021/12/31
  */
-public class GenericRowRecord2 implements Serializable {
+public class GenericCdcRecord implements Serializable {
 
     private String dbName;
     private String tableName;

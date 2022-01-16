@@ -1,6 +1,7 @@
-package com.sf.bdp.extractor;
+package com.sf.bdp.extractor.old;
 
-import com.sf.bdp.entity.GenericRowRecord;
+import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.extractor.old.BaseRecordExtractor;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -13,7 +14,7 @@ public class StringRecordExtractor extends BaseRecordExtractor {
     }
 
     @Override
-    protected byte[] extractorRecord(GenericRowRecord record) {
+    protected byte[] extractorRecord(GenericCdcRecord record) {
         return record.toString().getBytes(StandardCharsets.UTF_8);
     }
 

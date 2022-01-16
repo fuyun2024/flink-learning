@@ -1,4 +1,4 @@
-package com.sf.bdp.extractor.coder;
+package com.sf.bdp.serialization.provider;
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 

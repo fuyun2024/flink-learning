@@ -1,13 +1,14 @@
-package com.sf.bdp.extractor;
+package com.sf.bdp.extractor.old;
 
-import com.sf.bdp.entity.GenericRowRecord;
+import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.extractor.RecordExtractor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Map;
 
-public abstract class BaseRecordExtractor implements RecordExtractor<Tuple2<String, GenericRowRecord>, ProducerRecord<byte[], byte[]>> {
+public abstract class BaseRecordExtractor implements RecordExtractor<Tuple2<String, GenericCdcRecord>, ProducerRecord<byte[], byte[]>> {
 
     protected final Map<String, String> tableTopicMap;
 
@@ -16,8 +17,8 @@ public abstract class BaseRecordExtractor implements RecordExtractor<Tuple2<Stri
     }
 
     @Override
-    public ProducerRecord<byte[], byte[]> apply(Tuple2<String, GenericRowRecord> tuple2) {
-        GenericRowRecord record = tuple2.f1;
+    public ProducerRecord<byte[], byte[]> apply(Tuple2<String, GenericCdcRecord> tuple2) {
+        GenericCdcRecord record = tuple2.f1;
         String topicName = getTopicName(record.getDbTable());
         if (StringUtils.isNotBlank(topicName)) {
             return new ProducerRecord(topicName, extractorRecord(record));
@@ -40,7 +41,7 @@ public abstract class BaseRecordExtractor implements RecordExtractor<Tuple2<Stri
      * @param record
      * @return
      */
-    protected abstract byte[] extractorRecord(GenericRowRecord record);
+    protected abstract byte[] extractorRecord(GenericCdcRecord record);
 
 
 }
