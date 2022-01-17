@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class GenericAvroSerializationSchema<In extends GenericAvroRecord> implements SerializationSchema<In> {
 
-    private WriteSchemaCoder.SchemaCoderProvider schemaCoderProvider;
+    protected WriteSchemaCoder.SchemaCoderProvider schemaCoderProvider;
     protected WriteSchemaCoder schemaCoder;
 
     private transient GenericDatumWriter datumWriter;
@@ -24,27 +24,14 @@ public class GenericAvroSerializationSchema<In extends GenericAvroRecord> implem
 
     public GenericAvroSerializationSchema(WriteSchemaCoder.SchemaCoderProvider schemaCoderProvider) {
         this.schemaCoderProvider = schemaCoderProvider;
-        initialized();
     }
 
-    /**
-     * 初始化
-     */
-    private void initialized() {
-        if (datumWriter == null) {
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            GenericData genericData = new GenericData(cl);
-            datumWriter = new GenericDatumWriter(null, genericData);
-            arrayOutputStream = new ByteArrayOutputStream();
-            encoder = EncoderFactory.get().directBinaryEncoder(arrayOutputStream, (BinaryEncoder) null);
-
-            schemaCoder = schemaCoderProvider.get();
-        }
-    }
 
 
     @Override
     public byte[] serialize(In record) {
+        checkAndInitialized();
+
         if (record == null) {
             return null;
         } else {
@@ -65,6 +52,21 @@ public class GenericAvroSerializationSchema<In extends GenericAvroRecord> implem
             } catch (IOException e) {
                 throw new WrappingRuntimeException("Failed to serialize schema registry.", e);
             }
+        }
+    }
+
+    /**
+     * 初始化
+     */
+    private void checkAndInitialized() {
+        if (datumWriter == null) {
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            GenericData genericData = new GenericData(cl);
+            datumWriter = new GenericDatumWriter(null, genericData);
+            arrayOutputStream = new ByteArrayOutputStream();
+            encoder = EncoderFactory.get().directBinaryEncoder(arrayOutputStream, (BinaryEncoder) null);
+
+            schemaCoder = schemaCoderProvider.get();
         }
     }
 

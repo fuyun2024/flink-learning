@@ -2,8 +2,11 @@ package com.sf.bdp.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.sf.bdp.ApplicationParameter;
-import com.sf.bdp.entity.GenericCdcRecord;
 import com.sf.bdp.deserialization.GenericCdcRecordDeserializationSchema;
+import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.extractor.DebeziumRecordExtractor;
+import com.sf.bdp.serialization.GenericAvroSerializationSchema;
+import com.sf.bdp.serialization.GenericKafkaSerializationSchema;
 import com.sf.bdp.serialization.provider.CachedSchemaCoderProvider;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
@@ -43,17 +46,21 @@ public class ApplicationHelper {
         kafkaProperties.setProperty("transaction.max.timeout.ms", 15 * 60 * 1000 + "");
         kafkaProperties.setProperty("transaction.timeout.ms", Long.valueOf(parameter.getCheckpointInterval()) * 1000 + "");
 
-        Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
-//        RecordExtractor recordExtractor = new StringRecordExtractor(tableTopicMap);
+
+//        RecordExtractor recordExtractor = new AvroRecordExtractor();
+//        RecordExtractor recordExtractor = new DebeziumRecordExtractor();
 
         String url = "http://192.168.152.128:8081";
         CachedSchemaCoderProvider schemaCoderProvider = new CachedSchemaCoderProvider(url, 1000);
 
-//        RecordExtractor dynamicRecordExtractor = new GenericRowRecordExtractor2(tableTopicMap, schemaCoderProvider);
-
-//        return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(dynamicRecordExtractor),
-//                kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
-        return null;
+        Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
+        return new FlinkKafkaProducer<>("",
+                new GenericKafkaSerializationSchema(
+                        tableTopicMap,
+                        new GenericAvroSerializationSchema<>(schemaCoderProvider),
+                        new DebeziumRecordExtractor()),
+                kafkaProperties,
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
 
 

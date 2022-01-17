@@ -52,18 +52,18 @@ public class GenericCdcRecordDeserializationSchema implements DebeziumDeserializ
 
         Envelope.Operation op = Envelope.operationFor(sourceRecord);
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            setExtractAfterRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
+            setAfterRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericCdcRecord.setKind(RowKind.INSERT);
         } else if (op == Envelope.Operation.DELETE) {
-            setExtractBeforeRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
+            setBeforeRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericCdcRecord.setKind(RowKind.DELETE);
         } else {
             //  todo 占时不处理
-            setExtractBeforeRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
+            setBeforeRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericCdcRecord.setKind(RowKind.UPDATE_BEFORE);
             emit(genericCdcRecord, out);
 
-            setExtractAfterRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
+            setAfterRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericCdcRecord.setKind(RowKind.UPDATE_AFTER);
         }
 
@@ -95,7 +95,7 @@ public class GenericCdcRecordDeserializationSchema implements DebeziumDeserializ
     }
 
 
-    private GenericCdcRecord setExtractBeforeRow(GenericCdcRecord genericCdcRecord, Struct value, Schema valueSchema) throws Exception {
+    private GenericCdcRecord setBeforeRow(GenericCdcRecord genericCdcRecord, Struct value, Schema valueSchema) throws Exception {
         Schema beforeSchema = valueSchema.field(Envelope.FieldName.BEFORE).schema();
         Struct before = value.getStruct(Envelope.FieldName.BEFORE);
 
@@ -121,7 +121,7 @@ public class GenericCdcRecordDeserializationSchema implements DebeziumDeserializ
     }
 
 
-    private GenericCdcRecord setExtractAfterRow(GenericCdcRecord genericCdcRecord, Struct value, Schema valueSchema) throws Exception {
+    private GenericCdcRecord setAfterRow(GenericCdcRecord genericCdcRecord, Struct value, Schema valueSchema) throws Exception {
         Schema afterSchema = valueSchema.field(Envelope.FieldName.AFTER).schema();
         Struct after = value.getStruct(Envelope.FieldName.AFTER);
 

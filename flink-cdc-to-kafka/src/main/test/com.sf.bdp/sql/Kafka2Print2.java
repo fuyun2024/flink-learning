@@ -46,11 +46,10 @@ public class Kafka2Print2 {
                 "  name STRING, \n" +
                 "  price BIGINT, \n" +
                 "  ts BIGINT, \n" +
-                "  dt STRING,\n" +
-                "  test STRING\n" +
+                "  dt STRING\n" +
                 ") WITH (\n" +
                 "  'connector' = 'kafka',\n" +
-                "  'topic' = 'qlh_test1_7',\n" +
+                "  'topic' = 'qlh_test1_8',\n" +
                 "  'properties.group.id' = 'testGroup',\n" +
                 "  'scan.startup.mode' = 'earliest-offset',\n" +
                 "  'properties.bootstrap.servers' = '192.168.152.128:9092',\n" +

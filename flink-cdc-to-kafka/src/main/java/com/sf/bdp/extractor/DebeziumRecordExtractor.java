@@ -1,17 +1,20 @@
 package com.sf.bdp.extractor;
 
 
-import com.sf.bdp.entity.GenericCdcRecord;
 import com.sf.bdp.entity.GenericAvroRecord;
+import com.sf.bdp.entity.GenericCdcRecord;
 import com.sf.bdp.utils.RowTypeUtils;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.util.Utf8;
 import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.logical.RowType;
+
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.apache.flink.table.types.utils.TypeConversions.fromLogicalToDataType;
@@ -30,21 +33,17 @@ public class DebeziumRecordExtractor implements RecordExtractor<GenericCdcRecord
     private static final StringData OP_DELETE = StringData.fromString("d");
 
 
-
-    private transient GenericRowData outputReuse;
-
-
     @Override
     public GenericAvroRecord apply(GenericCdcRecord genericCdcRecord) {
         /**
          * 构建 schema
          */
-        Schema debeziumSchema = buildDebeziumSchema(genericCdcRecord.getFieldNames(), genericCdcRecord.getFieldTypes());
+        Schema debeziumSchema = buildSchema(genericCdcRecord.getFieldNames(), genericCdcRecord.getFieldTypes());
 
-
+        /**
+         * 构建 record
+         */
         GenericRecord genericRecord = buildGenericRecord(genericCdcRecord, debeziumSchema);
-
-//        final GenericRecord record = (GenericRecord) runtimeConverter.convert(schema, row);
 
         GenericAvroRecord genericAvroRecord = new GenericAvroRecord();
         genericAvroRecord.setSchema(debeziumSchema);
@@ -60,18 +59,76 @@ public class DebeziumRecordExtractor implements RecordExtractor<GenericCdcRecord
      * @param fieldTypes
      * @return
      */
-    private Schema buildDebeziumSchema(String[] fieldNames, org.apache.kafka.connect.data.Schema.Type[] fieldTypes) {
+    private Schema buildSchema(String[] fieldNames, org.apache.kafka.connect.data.Schema.Type[] fieldTypes) {
         RowType rowType = RowTypeUtils.createRowType(fieldNames, fieldTypes);
         RowType debeziumAvroRowType = RowTypeUtils.createDebeziumAvroRowType(fromLogicalToDataType(rowType));
         return AvroSchemaConverter.convertToSchema(debeziumAvroRowType);
     }
 
 
-    private GenericRecord buildGenericRecord(GenericCdcRecord genericCdcRecord, Schema schema) {
-        GenericRecord genericRecord = new GenericData.Record(schema);
+    /**
+     * 获取原始的 schema
+     *
+     * @param schema
+     * @return
+     */
+    private Schema getActualSchema(Schema schema) {
+        List<Schema> types = schema.getTypes();
+        int size = types.size();
+        if (size == 2 && types.get(1).getType() == Schema.Type.NULL) {
+            return types.get(0);
+        } else if (size == 2 && types.get(0).getType() == Schema.Type.NULL) {
+            return types.get(1);
+        } else {
+            throw new IllegalArgumentException(
+                    "The Avro schema is not a nullable type: " + schema.toString());
+        }
+    }
+
+
+    /**
+     * 构建数据
+     *
+     * @param genericCdcRecord
+     * @param debeziumSchema
+     * @return
+     */
+    private GenericRecord buildGenericRecord(GenericCdcRecord genericCdcRecord, Schema debeziumSchema) {
         Object[] values = genericCdcRecord.getValues();
         String[] fieldNames = genericCdcRecord.getFieldNames();
 
+        Schema actualSchema = getActualSchema(debeziumSchema);
+
+
+        GenericRecord genericRecord = new GenericData.Record(actualSchema);
+        switch (genericCdcRecord.getKind()) {
+            case INSERT:
+            case UPDATE_AFTER:
+                Schema afterSchema = actualSchema.getFields().get(1).schema();
+                GenericRecord afterRecord = new GenericData.Record(getActualSchema(afterSchema));
+                setRecord(afterRecord, fieldNames, values);
+                genericRecord.put(0, null);
+                genericRecord.put(1, afterRecord);
+                genericRecord.put(2, new Utf8(OP_INSERT.toString()));
+                return genericRecord;
+            case UPDATE_BEFORE:
+            case DELETE:
+                Schema beforeSchema = actualSchema.getFields().get(0).schema();
+                GenericRecord beforeRecord = new GenericData.Record(getActualSchema(beforeSchema));
+                setRecord(beforeRecord, fieldNames, values);
+                genericRecord.put(0, beforeRecord);
+                genericRecord.put(1, null);
+                genericRecord.put(2, new Utf8(OP_DELETE.toString()));
+                return genericRecord;
+            default:
+                throw new UnsupportedOperationException(
+                        format(
+                                "Unsupported operation '%s' for row kind.",
+                                genericCdcRecord.getKind()));
+        }
+    }
+
+    private GenericRecord setRecord(GenericRecord genericRecord, String[] fieldNames, Object[] values) {
         for (int i = 0; i < fieldNames.length; i++) {
             genericRecord.put(fieldNames[i], values[i]);
         }
@@ -79,7 +136,14 @@ public class DebeziumRecordExtractor implements RecordExtractor<GenericCdcRecord
     }
 
 
-    public byte[] serialize(RowData rowData) {
+    /**
+     * 包装 Debezium data Extract
+     *
+     * @param rowData
+     * @return
+     */
+    private GenericRowData wrapDebeziumData(RowData rowData) {
+        GenericRowData outputReuse = new GenericRowData(3);
         try {
             switch (rowData.getRowKind()) {
                 case INSERT:
@@ -87,14 +151,13 @@ public class DebeziumRecordExtractor implements RecordExtractor<GenericCdcRecord
                     outputReuse.setField(0, null);
                     outputReuse.setField(1, rowData);
                     outputReuse.setField(2, OP_INSERT);
-//                    return avroSerializer.serialize(outputReuse);
-
+                    return outputReuse;
                 case UPDATE_BEFORE:
                 case DELETE:
                     outputReuse.setField(0, rowData);
                     outputReuse.setField(1, null);
                     outputReuse.setField(2, OP_DELETE);
-//                    return avroSerializer.serialize(outputReuse);
+                    return outputReuse;
                 default:
                     throw new UnsupportedOperationException(
                             format(
