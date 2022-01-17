@@ -3,11 +3,11 @@ package com.sf.bdp.extractor;
 
 import com.sf.bdp.entity.GenericAvroRecord;
 import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.utils.AvroSchemaConverter;
 import com.sf.bdp.utils.RowTypeUtils;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.types.logical.RowType;
 
 import java.util.List;

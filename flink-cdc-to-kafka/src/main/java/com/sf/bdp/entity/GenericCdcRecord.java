@@ -41,7 +41,7 @@ public class GenericCdcRecord implements Serializable {
 
     public String getKeyValueString() {
         if (values != null && values.length > 0) {
-            return Arrays.stream(values).map(String::valueOf).collect(Collectors.joining("."));
+            return Arrays.stream(keyValues).map(String::valueOf).collect(Collectors.joining("."));
         }
         return null;
     }

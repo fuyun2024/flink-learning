@@ -3,12 +3,12 @@ package com.sf.bdp.extractor;
 
 import com.sf.bdp.entity.GenericAvroRecord;
 import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.utils.AvroSchemaConverter;
 import com.sf.bdp.utils.RowTypeUtils;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
-import org.apache.flink.formats.avro.typeutils.AvroSchemaConverter;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;

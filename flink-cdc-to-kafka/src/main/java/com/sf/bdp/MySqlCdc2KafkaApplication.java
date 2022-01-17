@@ -41,7 +41,7 @@ public class MySqlCdc2KafkaApplication {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         setCheckPoint(env, parameter);
-        env.setParallelism(1);
+        env.setParallelism(4);
         env.fromSource(mysqlCdcSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
                 // keyBy dbTable 保证表内有序
                 .keyBy(t -> t.f0)
