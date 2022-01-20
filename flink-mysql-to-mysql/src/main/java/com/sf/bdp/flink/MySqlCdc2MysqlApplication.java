@@ -52,6 +52,7 @@ public class MySqlCdc2MysqlApplication {
                 .password(parameter.getSourcePassword())
                 .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
 //                .startupOptions(StartupOptions.initial())
+
                 .deserializer(new DynamicRowRecordDeserializationSchema())
                 .serverTimeZone("Asia/Shanghai")
                 .build();
@@ -71,6 +72,7 @@ public class MySqlCdc2MysqlApplication {
                 .setFlushMaxSize(Integer.valueOf(parameter.getSinkFlushMaxSize()))
                 .setMaxRetryTimes(Integer.valueOf(parameter.getSinkMaxRetryTimes()))
                 .setFlushIntervalMills(Integer.valueOf(parameter.getSinkFlushIntervalMills()) * 1000)
+
                 .build();
 
         Configuration conf = new Configuration();
