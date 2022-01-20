@@ -57,6 +57,7 @@ public class DynamicRowRecordDeserializationSchema implements DebeziumDeserializ
         // todo
         // dbName = dbName + "_copy";
 
+
         Envelope.Operation op = Envelope.operationFor(sourceRecord);
         Struct value = (Struct) sourceRecord.value();
         Schema valueSchema = sourceRecord.valueSchema();
