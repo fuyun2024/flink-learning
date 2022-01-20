@@ -1,4 +1,4 @@
-package com.sf.bdp.entity;
+package com.sf.bdp.record;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * ------------------------------------
  * created by eHui on 2021/12/31
  */
-public class GenericRowRecord implements Serializable {
+public class GenericCdcRecord implements Serializable {
 
     private String dbName;
     private String tableName;
@@ -41,7 +41,7 @@ public class GenericRowRecord implements Serializable {
 
     public String getKeyValueString() {
         if (values != null && values.length > 0) {
-            return Arrays.stream(values).map(String::valueOf).collect(Collectors.joining("."));
+            return Arrays.stream(keyValues).map(String::valueOf).collect(Collectors.joining("."));
         }
         return null;
     }
