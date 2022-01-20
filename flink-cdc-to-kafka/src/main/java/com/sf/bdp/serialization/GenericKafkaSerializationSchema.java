@@ -1,7 +1,7 @@
 package com.sf.bdp.serialization;
 
-import com.sf.bdp.entity.GenericCdcRecord;
-import com.sf.bdp.entity.GenericAvroRecord;
+import com.sf.bdp.record.GenericCdcRecord;
+import com.sf.bdp.record.GenericAvroRecord;
 import com.sf.bdp.extractor.RecordExtractor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;

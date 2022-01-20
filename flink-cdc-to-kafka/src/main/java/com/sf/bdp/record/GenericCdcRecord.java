@@ -1,4 +1,4 @@
-package com.sf.bdp.entity;
+package com.sf.bdp.record;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.commons.lang3.StringUtils;

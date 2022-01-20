@@ -1,8 +1,8 @@
 package com.sf.bdp.extractor;
 
 
-import com.sf.bdp.entity.GenericAvroRecord;
-import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.record.GenericAvroRecord;
+import com.sf.bdp.record.GenericCdcRecord;
 import com.sf.bdp.utils.AvroSchemaConverter;
 import com.sf.bdp.utils.RowTypeUtils;
 import org.apache.avro.Schema;

@@ -1,6 +1,6 @@
 package com.sf.bdp;
 
-import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.record.GenericCdcRecord;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -30,7 +30,6 @@ public class MySqlCdc2KafkaApplication {
         // create mysqlCdcSource
         MySqlSource<Tuple2<String, GenericCdcRecord>> mysqlCdcSource = createSource(parameter);
 
-
         // create kafkaSink
         FlinkKafkaProducer<Tuple2<String, GenericCdcRecord>> kafkaSink = createSink(parameter);
 
@@ -41,8 +40,8 @@ public class MySqlCdc2KafkaApplication {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         setCheckPoint(env, parameter);
-        env.setParallelism(1);
         env.fromSource(mysqlCdcSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
+                .setParallelism(1)
                 // keyBy dbTable 保证表内有序
                 .keyBy(t -> t.f0)
                 // keyBy key 同一记录有序

@@ -23,7 +23,7 @@ public class Kafka2Print_DataStream {
 
         KafkaSource<GenericRecord> source = KafkaSource.<GenericRecord>builder()
                 .setBootstrapServers("192.168.152.128:9092")
-                .setTopics("qlh_test1_10")
+                .setTopics("qlh_test1_17")
                 .setGroupId("my-group")
                 .setStartingOffsets(OffsetsInitializer.earliest())
                 .setValueOnlyDeserializer(deserializationSchema)

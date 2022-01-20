@@ -3,7 +3,7 @@ package com.sf.bdp.utils;
 import com.alibaba.fastjson.JSON;
 import com.sf.bdp.ApplicationParameter;
 import com.sf.bdp.deserialization.GenericCdcRecordDeserializationSchema;
-import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.record.GenericCdcRecord;
 import com.sf.bdp.extractor.DebeziumRecordExtractor;
 import com.sf.bdp.serialization.GenericAvroSerializationSchema;
 import com.sf.bdp.serialization.GenericKafkaSerializationSchema;

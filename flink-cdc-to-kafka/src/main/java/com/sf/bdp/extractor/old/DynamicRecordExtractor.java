@@ -1,6 +1,6 @@
 //package com.sf.bdp.extractor;
 //
-//import com.sf.bdp.entity.GenericCdcRecord;
+//import com.sf.bdp.record.GenericCdcRecord;
 //import com.sf.bdp.utils.RowTypeUtils;
 //import org.apache.avro.Schema;
 //import org.apache.avro.generic.GenericData;

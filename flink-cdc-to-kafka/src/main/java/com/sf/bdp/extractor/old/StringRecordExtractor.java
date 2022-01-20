@@ -1,7 +1,6 @@
 package com.sf.bdp.extractor.old;
 
-import com.sf.bdp.entity.GenericCdcRecord;
-import com.sf.bdp.extractor.old.BaseRecordExtractor;
+import com.sf.bdp.record.GenericCdcRecord;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.sf.bdp.extractor.old;
 
-import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.record.GenericCdcRecord;
 import com.sf.bdp.extractor.RecordExtractor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;

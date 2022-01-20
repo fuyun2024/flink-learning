@@ -1,6 +1,6 @@
 package com.sf.bdp.serialization;
 
-import com.sf.bdp.entity.GenericAvroRecord;
+import com.sf.bdp.record.GenericAvroRecord;
 import com.sf.bdp.serialization.provider.WriteSchemaCoder;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;

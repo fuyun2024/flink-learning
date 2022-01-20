@@ -1,6 +1,6 @@
 package com.sf.bdp.deserialization;
 
-import com.sf.bdp.entity.GenericCdcRecord;
+import com.sf.bdp.record.GenericCdcRecord;
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.table.DeserializationRuntimeConverter;
 import io.debezium.data.Envelope;
@@ -47,7 +47,6 @@ public class GenericCdcRecordDeserializationSchema implements DebeziumDeserializ
 
         setDbTable(genericCdcRecord, sourceRecord);
 
-        //  todo 占时不处理
         setExtractKeyRow(genericCdcRecord, (Struct) sourceRecord.key(), sourceRecord.keySchema());
 
         Envelope.Operation op = Envelope.operationFor(sourceRecord);
@@ -59,9 +58,9 @@ public class GenericCdcRecordDeserializationSchema implements DebeziumDeserializ
             genericCdcRecord.setKind(RowKind.DELETE);
         } else {
             //  todo 占时不处理
-            setBeforeRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
-            genericCdcRecord.setKind(RowKind.UPDATE_BEFORE);
-            emit(genericCdcRecord, out);
+//            setBeforeRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
+//            genericCdcRecord.setKind(RowKind.UPDATE_BEFORE);
+//            emit(genericCdcRecord, out);
 
             setAfterRow(genericCdcRecord, (Struct) sourceRecord.value(), sourceRecord.valueSchema());
             genericCdcRecord.setKind(RowKind.UPDATE_AFTER);
