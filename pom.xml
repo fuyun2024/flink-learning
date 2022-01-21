@@ -10,7 +10,7 @@
 
 
     <modules>
-<!--        <module>flink-mysql-to-mysql</module>-->
+        <module>flink-connector-jar</module>
         <module>flink-cdc-to-kafka</module>
     </modules>
 

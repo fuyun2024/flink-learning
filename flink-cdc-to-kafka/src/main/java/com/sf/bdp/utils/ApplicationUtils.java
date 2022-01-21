@@ -92,9 +92,9 @@ public class ApplicationUtils {
 
         // 确保检查点之间有至少500 ms的间隔【checkpoint最小间隔】
         ckConfig.setMinPauseBetweenCheckpoints(500);
-
         // 同一时间只允许进行一个检查点
         ckConfig.setMaxConcurrentCheckpoints(1);
+
 
         // 设置失败次数
         ckConfig.setTolerableCheckpointFailureNumber(5);
