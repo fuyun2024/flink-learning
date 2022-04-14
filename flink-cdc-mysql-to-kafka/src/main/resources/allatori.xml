@@ -1,6 +1,6 @@
 <config>
     <input>
-        <jar in="../flink-cdc-to-kafka-1.0.0.jar" out="../new-flink-cdc-to-kafka-1.0.0.jar"/>
+        <jar in="../flink-cdc-mysql-to-kafka-1.0.0.jar" out="../new-flink-cdc-mysql-to-kafka-1.0.0.jar"/>
     </input>
 
     <keep-names>
@@ -10,7 +10,6 @@
         </class>
     </keep-names>
     <ignore-classes>
-        <!-- 注意：spring的框架相关的文件需要排除，避免启动报错 -->
         <class template="class com.sf.bdp.MySqlCdc2KafkaApplication"/>
     </ignore-classes>
     <property name="log-file" value="log.xml"/>

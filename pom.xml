@@ -11,7 +11,7 @@
 
     <modules>
         <module>flink-connector-jar</module>
-        <module>flink-cdc-to-kafka</module>
+        <module>flink-cdc-mysql-to-kafka</module>
     </modules>
 
 </project>

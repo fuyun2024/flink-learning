@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>flink-cdc-to-kafka</artifactId>
+    <artifactId>flink-cdc-mysql-to-kafka</artifactId>
 
 
     <properties>
@@ -18,6 +18,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <flink.version>1.13.5</flink.version>
         <scala.version>2.12</scala.version>
+        <confluent.version>5.5.2</confluent.version>
     </properties>
 
 
@@ -36,26 +37,10 @@
         </dependency>
 
 
-        <!--    cdc  connector  -->
         <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-mysql-cdc</artifactId>
-            <version>2.1.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--   kafka  connector  -->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_2.11</artifactId>
-            <version>${flink.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.76</version>
+            <groupId>org.ehui</groupId>
+            <artifactId>flink-connector-jar</artifactId>
+            <version>1.0.0</version>
             <scope>provided</scope>
         </dependency>
 

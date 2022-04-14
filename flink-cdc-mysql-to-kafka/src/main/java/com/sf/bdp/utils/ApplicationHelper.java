@@ -2,11 +2,9 @@ package com.sf.bdp.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.sf.bdp.ApplicationParameter;
-import com.sf.bdp.deserialization.GenericKafkaSerializationSchema;
-import com.sf.bdp.entity.GenericRowRecord;
-import com.sf.bdp.deserialization.GenericRowRecordDeserializationSchema;
-import com.sf.bdp.extractor.BaseProducerRecordExtractor;
-import com.sf.bdp.extractor.RecordExtractor;
+import com.sf.bdp.deserialization.GenericCdcRecordDeserializationSchema;
+import com.sf.bdp.record.GenericCdcRecord;
+import com.sf.bdp.serialization.GenericKafkaSerializationSchema;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.commons.lang3.StringUtils;
@@ -26,9 +24,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
-public class ApplicationUtils {
+public class ApplicationHelper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ApplicationUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationHelper.class);
 
 
     public static ApplicationParameter buildJobParameter(String[] args) {
@@ -39,34 +37,36 @@ public class ApplicationUtils {
     }
 
 
-    public static FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> createSink(ApplicationParameter parameter) {
+    public static FlinkKafkaProducer<Tuple2<String, GenericCdcRecord>> createSink(ApplicationParameter parameter) {
         Properties kafkaProperties = new Properties();
         kafkaProperties.setProperty("bootstrap.servers", parameter.getSinkBootstrapServers());
         kafkaProperties.setProperty("transaction.max.timeout.ms", 15 * 60 * 1000 + "");
         kafkaProperties.setProperty("transaction.timeout.ms", Long.valueOf(parameter.getCheckpointInterval()) * 1000 + "");
 
-        Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
-        RecordExtractor recordExtractor = new BaseProducerRecordExtractor(tableTopicMap);
 
-        return new FlinkKafkaProducer<>("", new GenericKafkaSerializationSchema(recordExtractor),
-                kafkaProperties, FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
+        Map<String, String> tableTopicMap = JSON.parseObject(parameter.getDbTableTopicMap(), Map.class);
+        return new FlinkKafkaProducer<>("",
+                new GenericKafkaSerializationSchema(
+                        tableTopicMap),
+                kafkaProperties,
+                FlinkKafkaProducer.Semantic.EXACTLY_ONCE);
     }
 
 
-    public static MySqlSource<Tuple2<String, GenericRowRecord>> createSource(ApplicationParameter parameter) {
+    public static MySqlSource<Tuple2<String, GenericCdcRecord>> createSource(ApplicationParameter parameter) {
         String[] databaseArray = Arrays.stream(parameter.getSourceDatabaseList().split(",")).toArray(String[]::new);
         String[] tableArray = Arrays.stream(parameter.getSourceTableList().split(",")).toArray(String[]::new);
 
-        return MySqlSource.<Tuple2<String, GenericRowRecord>>builder()
+        return MySqlSource.<Tuple2<String, GenericCdcRecord>>builder()
                 .hostname(parameter.getSourceHostName())
                 .port(Integer.valueOf(parameter.getSourcePort()))
                 .databaseList(databaseArray)
                 .tableList(tableArray)
                 .username(parameter.getSourceUsername())
                 .password(parameter.getSourcePassword())
-                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
-//                .startupOptions(StartupOptions.initial())
-                .deserializer(new GenericRowRecordDeserializationSchema())
+//                .startupOptions(StartupOptions.specificOffset(parameter.getSpecificOffsetFile(), Integer.valueOf(parameter.getSpecificOffsetPos())))
+                .startupOptions(StartupOptions.initial())
+                .deserializer(new GenericCdcRecordDeserializationSchema())
                 .serverTimeZone("Asia/Shanghai")
                 .build();
     }
@@ -92,9 +92,9 @@ public class ApplicationUtils {
 
         // 确保检查点之间有至少500 ms的间隔【checkpoint最小间隔】
         ckConfig.setMinPauseBetweenCheckpoints(500);
+
         // 同一时间只允许进行一个检查点
         ckConfig.setMaxConcurrentCheckpoints(1);
-
 
         // 设置失败次数
         ckConfig.setTolerableCheckpointFailureNumber(5);

@@ -1,6 +1,6 @@
 package com.sf.bdp;
 
-import com.sf.bdp.entity.GenericRowRecord;
+import com.sf.bdp.record.GenericCdcRecord;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-import static com.sf.bdp.utils.ApplicationUtils.*;
+import static com.sf.bdp.utils.ApplicationHelper.*;
 
 public class MySqlCdc2KafkaApplication {
 
@@ -28,20 +28,21 @@ public class MySqlCdc2KafkaApplication {
 
 
         // create mysqlCdcSource
-        MySqlSource<Tuple2<String, GenericRowRecord>> mysqlCdcSource = createSource(parameter);
-
+        MySqlSource<Tuple2<String, GenericCdcRecord>> mysqlCdcSource = createSource(parameter);
 
         // create kafkaSink
-        FlinkKafkaProducer<Tuple2<String, GenericRowRecord>> kafkaSink = createSink(parameter);
+        FlinkKafkaProducer<Tuple2<String, GenericCdcRecord>> kafkaSink = createSink(parameter);
 
 
         // main
         Configuration conf = new Configuration();
         conf.setString("state.checkpoints.num-retained", "3");
 
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         setCheckPoint(env, parameter);
         env.fromSource(mysqlCdcSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
+                .setParallelism(1)
                 // keyBy dbTable 保证表内有序
                 .keyBy(t -> t.f0)
                 // keyBy key 同一记录有序
